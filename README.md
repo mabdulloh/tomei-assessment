@@ -1,27 +1,26 @@
-# Spring Boot README
+## Spring Boot with Fakestore API and Gradle (Java 17)
 
-This is a README file for a Spring Boot project. It provides a brief overview of Spring Boot, getting started instructions, and common development tasks.
+This README outlines how to run a Spring Boot application that consumes the product API from [fakestore.com](https://fakestoreapi.com/) and allows placing orders for products using Java 17 and Gradle.
 
-## What is Spring Boot?
+**Note:** This guide assumes you already have a Spring Boot project set up with Gradle and Java 17 configured.
 
-Spring Boot is an open-source framework for rapid application development on top of the Java platform. It provides a convenient way to create production-grade Spring applications with minimal configuration. Spring Boot takes care of much of the boilerplate configuration typically needed for a Spring application, allowing you to focus on writing business logic.
+## Project Purpose
 
-## Getting Started
+This project demonstrates consuming the Fakestore product API and simulating order placement. Key functionalities include:
 
-### Prerequisites
+*   **Fetching product data:** The application retrieves product information from the Fakestore API.
+*   **Order placement:** The application provides an endpoint to simulate placing orders. Orders are stored in an in-memory `Map` acting as a simple database.
 
-* Java 17 or later (check with `java -version`)
-* Maven or Gradle (build tools)
+## Dependencies
 
-### Creating a Spring Boot Application
+The following Gradle dependencies are required for this project:
 
-The easiest way to create a Spring Boot application is to use the Spring Initializr (https://start.spring.io/). This web tool allows you to choose the dependencies you need for your project and generates a project structure with the necessary configuration files.
+*   Spring Web for REST API communication
+*   Lombok for helping reduce boilerplate code
 
-Once you have generated your project, you can import it into your preferred IDE (e.g., Eclipse, IntelliJ IDEA) and start developing your application.
+Add these to your `build.gradle` file:
 
-### Running a Spring Boot Application
-
-Spring Boot applications are typically packaged as executable JAR files. You can run your application from the command line using the following command:
-
-```bash
-java -jar my-app.jar
+```gradle
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+}
