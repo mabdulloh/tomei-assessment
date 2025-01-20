@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.tomei.assessment.constant.ApiConstant;
 import org.tomei.assessment.dto.ProductResultDto;
 import org.tomei.assessment.service.ProductService;
 
@@ -18,12 +19,12 @@ public class ProductController {
     private final ProductService productService;
     private static final String BASE_ROUTE = "/products";
 
-    @GetMapping(BASE_ROUTE)
+    @GetMapping(ApiConstant.API + ApiConstant.API_VERSION + BASE_ROUTE)
     public ResponseEntity<List<ProductResultDto>> fetchProducts() {
         return ResponseEntity.ok(productService.fetchProducts());
     }
 
-    @GetMapping(BASE_ROUTE + "/{productId}")
+    @GetMapping(ApiConstant.API + ApiConstant.API_VERSION + BASE_ROUTE + "/{productId}")
     public ResponseEntity<ProductResultDto> fetchProduct(@PathVariable Integer productId) {
         return ResponseEntity.ok(productService.findByProductId(productId));
     }
