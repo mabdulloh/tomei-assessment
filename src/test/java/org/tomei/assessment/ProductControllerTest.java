@@ -1,15 +1,19 @@
 package org.tomei.assessment;
 
+import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.tomei.assessment.client.ExternalProductService;
+import org.tomei.assessment.controller.OrderController;
 import org.tomei.assessment.controller.ProductController;
 import org.tomei.assessment.dto.ProductDto;
+import org.tomei.assessment.dto.ProductOrderDto;
+import org.tomei.assessment.dto.RatingDto;
 import org.tomei.assessment.exception.NotFoundException;
+import org.tomei.assessment.exception.OutOfStockException;
+import org.tomei.assessment.service.OrderService;
 import org.tomei.assessment.service.ProductService;
 import org.tomei.assessment.service.impl.ProductServiceImpl;
 
@@ -24,15 +28,19 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class ProductControllerTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductControllerTest.class);
     private ProductController productController;
+    private OrderController orderController;
+    private ProductService productService;
+    private OrderService orderService;
     @Mock
     private ExternalProductService externalProductService;
 
     @BeforeEach
     void setUp() {
-        final ProductService productService = new ProductServiceImpl(externalProductService);
+        productService = new ProductServiceImpl(externalProductService);
+        orderService = new ProductServiceImpl(externalProductService);
         productController = new ProductController(productService);
+        orderController = new OrderController(orderService);
     }
 
     @Test
@@ -65,9 +73,70 @@ class ProductControllerTest {
         assertTrue(exception.getMessage().contains("Product not found"));
     }
 
+    @Test
+    void testPlaceOrder() {
+        when(externalProductService.findByProductId(anyInt()))
+                .thenReturn(Optional.of(findProductToOrder()));
+        final var productOrder = new ProductOrderDto()
+                .setProductId(2)
+                .setQuantity(20);
+        var items = orderController.fetchOrders();
+        assertTrue(items.isEmpty());
+        final var result = orderController.placeOrder(productOrder);
+        items = orderController.fetchOrders();
+        assertEquals(1, items.size());
+        assertEquals(result.getOrderId(), items.get(0).getOrderId());
+        assertEquals(result.getTotalPrice(), items.get(0).getTotalPrice());
+    }
+
+    @Test
+    void testPlaceOrder_notFound() {
+        when(externalProductService.findByProductId(anyInt()))
+                .thenReturn(Optional.empty());
+        final var productOrder = new ProductOrderDto()
+                .setProductId(2)
+                .setQuantity(20);
+        final var exception = assertThrows(NotFoundException.class, () -> {
+            orderController.placeOrder(productOrder);
+        });
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("Product not found"));
+    }
+
+    @Test
+    void testPlaceOrder_outOfStock() {
+        when(externalProductService.findByProductId(anyInt()))
+                .thenReturn(Optional.of(findProductById()));
+        final var productOrder = new ProductOrderDto()
+                .setProductId(1)
+                .setQuantity(20);
+        final var exception = assertThrows(OutOfStockException.class, () -> {
+            orderController.placeOrder(productOrder);
+        });
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("is out of stock"));
+    }
+
     private static ProductDto findProductById() {
         return new ProductDto()
-                .setId(1);
+                .setId(1)
+                .setPrice(10D)
+                .setTitle(RandomString.make(20))
+                .setDescription(RandomString.make(300))
+                .setImage(RandomString.make(100))
+                .setCategory(RandomString.make(20))
+                .setRating(new RatingDto(5.00, 100));
+    }
+
+    private static ProductDto findProductToOrder() {
+        return new ProductDto()
+                .setId(2)
+                .setPrice(10D)
+                .setTitle(RandomString.make(20))
+                .setDescription(RandomString.make(300))
+                .setImage(RandomString.make(100))
+                .setCategory(RandomString.make(20))
+                .setRating(new RatingDto(5.00, 100));
     }
 
     private static List<ProductDto> fetchProducts() {

@@ -42,16 +42,20 @@ public class ProductServiceImpl implements ProductService, OrderService {
     }
 
     @Override
-    public void placeOrder(ProductOrderDto productOrderDto) {
+    public ProductOrderDto placeOrder(ProductOrderDto productOrderDto) {
+        final var productDto = findByProductId(productOrderDto.getProductId());
         if (OUT_OF_STOCK.equals(ProductUtil.determineStatus(productOrderDto.getProductId()))) {
             log.error("Product with productId: {} is out of stock", productOrderDto.getProductId());
             throw new OutOfStockException("Product with productId: " + productOrderDto.getProductId() + " is out of stock");
         } else {
             final var orderId = ProductUtil.generateOrderId();
-            final var totalPrice = productOrderDto.getPrice() * productOrderDto.getQuantity();
+            final var totalPrice = productDto.getPrice() * productOrderDto.getQuantity();
             productOrderDto.setOrderId(orderId);
+            productOrderDto.setTitle(productDto.getTitle());
             productOrderDto.setTotalPrice(totalPrice);
+            log.info("adding new order with details: {}", productOrderDto);
             productOrders.put(orderId, productOrderDto);
+            return productOrderDto;
         }
     }
 

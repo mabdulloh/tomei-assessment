@@ -20,9 +20,9 @@ public class OrderController {
 
 
     @PostMapping(BASE_ROUTE)
-    public void placeOrder(@RequestBody ProductOrderDto productOrderDto) {
+    public ProductOrderDto placeOrder(@RequestBody ProductOrderDto productOrderDto) {
         log.info("Place order for: {}", productOrderDto);
-        orderService.placeOrder(productOrderDto);
+        return orderService.placeOrder(productOrderDto);
     }
 
     @GetMapping(BASE_ROUTE)
