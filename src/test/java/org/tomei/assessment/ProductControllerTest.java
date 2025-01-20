@@ -13,6 +13,7 @@ import org.tomei.assessment.dto.ProductOrderDto;
 import org.tomei.assessment.dto.RatingDto;
 import org.tomei.assessment.exception.NotFoundException;
 import org.tomei.assessment.exception.OutOfStockException;
+import org.tomei.assessment.exception.ValidationException;
 import org.tomei.assessment.service.OrderService;
 import org.tomei.assessment.service.ProductService;
 import org.tomei.assessment.service.impl.ProductServiceImpl;
@@ -30,15 +31,13 @@ class ProductControllerTest {
 
     private ProductController productController;
     private OrderController orderController;
-    private ProductService productService;
-    private OrderService orderService;
     @Mock
     private ExternalProductService externalProductService;
 
     @BeforeEach
     void setUp() {
-        productService = new ProductServiceImpl(externalProductService);
-        orderService = new ProductServiceImpl(externalProductService);
+        final ProductService productService = new ProductServiceImpl(externalProductService);
+        final OrderService orderService = new ProductServiceImpl(externalProductService);
         productController = new ProductController(productService);
         orderController = new OrderController(orderService);
     }
@@ -115,6 +114,20 @@ class ProductControllerTest {
         });
         assertNotNull(exception);
         assertTrue(exception.getMessage().contains("is out of stock"));
+    }
+
+    @Test
+    void testPlaceOrder_invalidQty() {
+        when(externalProductService.findByProductId(anyInt()))
+                .thenReturn(Optional.of(findProductToOrder()));
+        final var productOrder = new ProductOrderDto()
+                .setProductId(2)
+                .setQuantity(0);
+        final var exception = assertThrows(ValidationException.class, () -> {
+            orderController.placeOrder(productOrder);
+        });
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("can not be lower than 1"));
     }
 
     private static ProductDto findProductById() {
