@@ -14,6 +14,7 @@ public class ProductMapper {
                 .setPrice(productDto.getPrice())
                 .setCategory(productDto.getCategory())
                 .setRating(productDto.getRating())
+                .setImage(productDto.getImage())
                 .setDescription(productDto.getDescription())
                 .setStatus(ProductUtil.determineStatus(productDto.getId()));
     }
