@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.tomei.assessment.client.ExternalProductService;
-import org.tomei.assessment.dto.ProductDto;
 import org.tomei.assessment.dto.ProductOrderDto;
 import org.tomei.assessment.dto.ProductResultDto;
 import org.tomei.assessment.exception.NotFoundException;
