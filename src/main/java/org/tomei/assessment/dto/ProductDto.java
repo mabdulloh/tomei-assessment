@@ -1,8 +1,10 @@
 package org.tomei.assessment.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class ProductDto {
     private Integer id;
     private String title;
