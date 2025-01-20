@@ -10,6 +10,7 @@ import org.tomei.assessment.exception.NotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -25,12 +26,10 @@ public class FakeStoreApiClient implements ExternalProductService {
     }
 
     @Override
-    public ProductDto findByProductId(Integer productId) {
+    public Optional<ProductDto> findByProductId(Integer productId) {
         return fetchProducts()
                 .stream()
                 .filter(x -> x.getId().equals(productId))
-                .findAny()
-                .orElseThrow(() ->
-                        new NotFoundException("Product not found with productId: " + productId.toString()));
+                .findAny();
     }
 }

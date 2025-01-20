@@ -3,15 +3,19 @@ package org.tomei.assessment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.tomei.assessment.client.ExternalProductService;
 import org.tomei.assessment.controller.ProductController;
 import org.tomei.assessment.dto.ProductDto;
+import org.tomei.assessment.exception.NotFoundException;
 import org.tomei.assessment.service.ProductService;
 import org.tomei.assessment.service.impl.ProductServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -20,6 +24,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class ProductControllerTest {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductControllerTest.class);
     private ProductController productController;
     @Mock
     private ExternalProductService externalProductService;
@@ -43,10 +48,21 @@ class ProductControllerTest {
     @Test
     void testFindProduct() {
         when(externalProductService.findByProductId(anyInt()))
-                .thenReturn(findProductById());
+                .thenReturn(Optional.of(findProductById()));
         final var result = productController.fetchProduct(1);
         final var resultBody = result.getBody();
         assertNotNull(resultBody);
+    }
+
+    @Test
+    void testFindProduct_notFound() {
+        when(externalProductService.findByProductId(anyInt()))
+                .thenReturn(Optional.empty());
+        final var exception = assertThrows(NotFoundException.class, () -> {
+            productController.fetchProduct(1);
+        });
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("Product not found"));
     }
 
     private static ProductDto findProductById() {

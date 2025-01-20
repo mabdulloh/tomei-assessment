@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.tomei.assessment.client.ExternalProductService;
 import org.tomei.assessment.dto.ProductOrderDto;
 import org.tomei.assessment.dto.ProductResultDto;
+import org.tomei.assessment.exception.NotFoundException;
 import org.tomei.assessment.exception.OutOfStockException;
 import org.tomei.assessment.service.OrderService;
 import org.tomei.assessment.service.ProductService;
@@ -35,7 +36,9 @@ public class ProductServiceImpl implements ProductService, OrderService {
     @Override
     public ProductResultDto findByProductId(Integer productId) {
         log.info("Fetching product with productId: {}", productId);
-        return ProductMapper.mapToProductResultDto(externalProductService.findByProductId(productId));
+        return externalProductService.findByProductId(productId)
+                .map(ProductMapper::mapToProductResultDto)
+                .orElseThrow(() -> new NotFoundException("Product not found with productId: " + productId));
     }
 
     @Override
