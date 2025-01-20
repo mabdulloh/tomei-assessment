@@ -69,8 +69,8 @@ public class ProductServiceImpl implements ProductService, OrderService {
         }
 
         if (productOrderDto.getQuantity() < 1) {
-            log.error("Oder quantity can not be lower than 1");
-            throw new ValidationException("Oder quantity can not be lower than 1");
+            log.error("Order quantity can not be lower than 1");
+            throw new ValidationException("Order quantity can not be lower than 1");
         }
     }
 
